@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    mybubble.cpp
+    mybubble.cpp \
+    physicscalculator.cpp
 
 HEADERS  += mainwindow.h \
-    mybubble.h
+    mybubble.h \
+    physicscalculator.h
 
 FORMS    += mainwindow.ui

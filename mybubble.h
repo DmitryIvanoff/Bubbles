@@ -7,7 +7,8 @@
 #include <QtGui>
 class MyBubble : public QGraphicsObject
 {
-
+     Q_OBJECT
+     Q_PROPERTY(QPointF position READ getPosition WRITE setPosition)
 public:
     MyBubble();
     MyBubble(qreal);
@@ -17,11 +18,21 @@ public:
     QPainterPath shape() const;
     void advance(int phase);
 
+    QPointF getV();
+    void setV(const QPointF &value);
+    QPointF getPosition();
+    void setPosition(const QPointF &value);
+
+
+
+    qreal getDiameter() const;
+    void setDiameter(const qreal &value);
+
 private:
+    QPropertyAnimation* anim;
+    QMutex mutex;
     qreal diameter;
-    qreal v_x;
-    qreal v_y;
-    qreal v_z;
+    QPointF v;
 
 };
 

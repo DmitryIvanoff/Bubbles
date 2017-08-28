@@ -10,7 +10,6 @@ class MyBubble : public QGraphicsObject
      Q_OBJECT
      Q_PROPERTY(QPointF position READ getPosition WRITE setPosition)
 public:
-    MyBubble();
     MyBubble(qreal);
     virtual ~MyBubble();
      QRectF boundingRect() const;
@@ -30,9 +29,10 @@ public:
 
 private:
     QPropertyAnimation* anim;
-    QMutex mutex;
+    QMutex V_mutex;
+    QMutex Pos_mutex;
     qreal diameter;
-    QPointF v;
+    QPointF velocity;
 
 };
 

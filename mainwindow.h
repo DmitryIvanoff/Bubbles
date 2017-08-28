@@ -11,8 +11,11 @@
 #include <QTimeLine>
 #include <QTimer>
 #include <thread>
+#include <QThread>
 #include <list>
 #include "mybubble.h"
+#include "calculator.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -25,14 +28,15 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private slots:
-    void advance();
+
 private:
+    QThread* thread;
     Ui::MainWindow *ui;
     QGraphicsScene* scene;
-    QList<MyBubble*> list;
+    QList<MyBubble*> items;
     QTimer* timer1;
-     QTimer* timer2;
+    QTimer* timer2;
+    Calculator* calculator;
 
 };
 

@@ -1,13 +1,13 @@
 #include "mybubble.h"
 
-MyBubble::MyBubble(qreal d):QGraphicsObject(),mutex()
+MyBubble::MyBubble(qreal d):QGraphicsObject(),V_mutex(),Pos_mutex()
 {
     diameter=d;
-    v.setX(0);
-    v.setY(0);
+    velocity.setX(0);
+    velocity.setY(0);
     setPos(QPoint(qrand()%200,qrand()%200));
     anim=new QPropertyAnimation(this,"position");
-    anim->setDuration(100);
+    anim->setDuration(10);
     //setFlags(QGraphicsObject::ItemIsMovable);
 }
 
@@ -16,13 +16,6 @@ MyBubble::~MyBubble()
    delete anim;
 }
 
-MyBubble::MyBubble():QGraphicsObject()
-{
-    diameter=5;
-    v.setX(10*(double)qrand()/(double)RAND_MAX);
-    v.setY(10*(double)qrand()/(double)RAND_MAX);
-    //setPos(mapToParent(QPoint(qrand()%100,qrand()%100)));
-}
 
 QRectF MyBubble::boundingRect() const
 {
@@ -31,7 +24,7 @@ QRectF MyBubble::boundingRect() const
 
 void MyBubble::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
-    painter->setRenderHint(QPainter::Antialiasing);
+    //painter->setRenderHint(QPainter::Antialiasing);
 //    if (collidingItems().isEmpty())
 //    {
 //        painter->setPen(Qt::blue);
@@ -56,48 +49,46 @@ void MyBubble::advance(int phase)
 {
     if (phase)
     {
-
-        anim->setStartValue(getPosition());
-        anim->setEndValue(QPointF(getPosition().x()+getV().x(),getPosition().y()+getV().y()));
+        QPointF v=getV();
+        QPointF p=getPosition();
+        anim->setStartValue(p);
+        anim->setEndValue(QPointF(p.x()+v.x(),p.y()+v.y()));
         anim->start();
-
-
-        //setPos(QPointF(pos().x()+v_x,pos().y()+v_y));
     }
 
 }
 
 QPointF MyBubble::getV()
 {
-    mutex.lock();
+    V_mutex.lock();
     QPointF value;
-    value=v;
-    mutex.unlock();
+    value=velocity;
+    V_mutex.unlock();
     return value;
 }
 
 void MyBubble::setV(const QPointF &value)
 {
-     mutex.lock();
-     v=value;
-     mutex.unlock();
+     V_mutex.lock();
+     velocity=value;
+     V_mutex.unlock();
 }
 
 QPointF MyBubble::getPosition()
 {
-    mutex.lock();
+    Pos_mutex.lock();
     QPointF value;
     value=pos();
-    mutex.unlock();
+    Pos_mutex.unlock();
     return value;
 }
 
 
 void MyBubble::setPosition(const QPointF &value)
 {
-    mutex.lock();
+    Pos_mutex.lock();
     setPos(value);
-    mutex.unlock();
+    Pos_mutex.unlock();
 }
 
 qreal MyBubble::getDiameter() const

@@ -15,10 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     mybubble.cpp \
-    calculator.cpp
+    calculator.cpp \
+    eventfilter.cpp
 
 HEADERS  += mainwindow.h \
     mybubble.h \
-    calculator.h
+    calculator.h \
+    eventfilter.h
 
 FORMS    += mainwindow.ui

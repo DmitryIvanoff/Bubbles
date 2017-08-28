@@ -11,6 +11,9 @@ class MyBubble : public QGraphicsObject
      Q_PROPERTY(QPointF position READ getPosition WRITE setPosition)
 public:
     MyBubble(qreal);
+    MyBubble(qreal,qreal,qreal);
+    MyBubble(qreal,QPointF,QPointF);
+    MyBubble(const MyBubble&);
     virtual ~MyBubble();
      QRectF boundingRect() const;
      void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
@@ -24,15 +27,20 @@ public:
 
 
 
-    qreal getDiameter() const;
+    qreal getDiameter();
     void setDiameter(const qreal &value);
+
+    int getFrameDuration() const;
 
 private:
     QPropertyAnimation* anim;
     QMutex V_mutex;
     QMutex Pos_mutex;
+    QMutex d_mutex;
     qreal diameter;
     QPointF velocity;
+public slots:
+    void setFrameDuration(int);
 
 };
 

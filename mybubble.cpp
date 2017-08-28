@@ -1,6 +1,6 @@
 #include "mybubble.h"
 
-MyBubble::MyBubble(qreal d):QGraphicsObject(),V_mutex(),Pos_mutex()
+MyBubble::MyBubble(qreal d):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
 {
     diameter=d;
     velocity.setX(0);
@@ -8,7 +8,35 @@ MyBubble::MyBubble(qreal d):QGraphicsObject(),V_mutex(),Pos_mutex()
     setPos(QPoint(qrand()%200,qrand()%200));
     anim=new QPropertyAnimation(this,"position");
     anim->setDuration(10);
-    //setFlags(QGraphicsObject::ItemIsMovable);
+}
+
+MyBubble::MyBubble(qreal d, qreal x, qreal y):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
+{
+    diameter=d;
+    velocity.setX(0);
+    velocity.setY(0);
+    setPos(QPoint(x,y));
+    anim=new QPropertyAnimation(this,"position");
+    anim->setDuration(10);
+}
+
+MyBubble::MyBubble(qreal d, QPointF v, QPointF p):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
+{
+    diameter=d;
+    velocity=v;
+    setPos(p);
+    anim=new QPropertyAnimation(this,"position");
+    anim->setDuration(10);
+}
+
+MyBubble::MyBubble(const MyBubble &bubble)
+{
+    diameter=bubble.diameter;
+    velocity.setX(0);
+    velocity.setY(0);
+    setPos(QPointF(0.0,0.0));
+    anim=new QPropertyAnimation(this,"position");
+    anim->setDuration(bubble.anim->duration());
 }
 
 MyBubble::~MyBubble()
@@ -91,14 +119,33 @@ void MyBubble::setPosition(const QPointF &value)
     Pos_mutex.unlock();
 }
 
-qreal MyBubble::getDiameter() const
+qreal MyBubble::getDiameter()
 {
-    return diameter;
+    d_mutex.lock();
+    qreal value;
+    value=diameter;
+    d_mutex.unlock();
+    return value;
 }
 
 void MyBubble::setDiameter(const qreal &value)
 {
+    d_mutex.lock();
     diameter = value;
+    d_mutex.unlock();
+}
+
+int MyBubble::getFrameDuration() const
+{
+    return anim->duration();
+}
+
+void MyBubble::setFrameDuration(int msecs)
+{
+    if (anim)
+    {
+        anim->setDuration(msecs);
+    }
 }
 
 

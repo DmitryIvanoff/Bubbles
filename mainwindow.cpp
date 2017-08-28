@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     double sceneWidth=400;
     double sceneHeight=400;
+    int updPeriod=10;
     scene=new QGraphicsScene(0,0,sceneWidth,sceneHeight,this);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().top(),QPen(Qt::red));
@@ -22,12 +23,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->centralWidget->setLayout(l);
     setWindowTitle("Bubbles");
     setMinimumSize(QSize(sceneWidth+100,sceneHeight+100));
-    for (int i=0;i<400;++i)
+    label=new QLabel(this);
+    ui->centralWidget->setMouseTracking(true);
+    ui->graphicsView->installEventFilter(this);
+    ui->graphicsView->setMouseTracking(true);
+    ui->statusBar->addWidget(label);
+    for (int i=0;i<3;++i)
     {
-        MyBubble* item= new MyBubble(10);
+        MyBubble* item= new MyBubble(5);
+        item->setFrameDuration(updPeriod);
         scene->addItem((QGraphicsItem*)item);
         items.append(item);
     }
+    ui->graphicsView->installEventFilter(new EventFilter(&items));
     calculator=new Calculator(&items);
     thread=new QThread(this);
     calculator->moveToThread(thread);
@@ -38,8 +46,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer2,SIGNAL(timeout()),calculator,SLOT(calculate()));
     thread->start(QThread::NormalPriority);
     QThread::currentThread()->setPriority(QThread::HighPriority);
-    timer1->start(10);
-    timer2->start(200);
+    timer1->start(updPeriod);
+    timer2->start(updPeriod);
+
+
 
 }
 
@@ -62,6 +72,22 @@ MainWindow::~MainWindow()
     items.clear();
     delete ui;
 }
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    QGraphicsView* view=dynamic_cast<QGraphicsView*>(watched);
+    if (view)
+    {
+        if (event->type()==QEvent::MouseMove)
+        {
+            QMouseEvent* e=dynamic_cast<QMouseEvent*>(event);
+            label->setText(QString("x: %1;y: %2").arg(e->pos().x()).arg(e->pos().y()));
+            ui->centralWidget->repaint();
+        }
+    }
+    return false;
+}
+
 
 
 

@@ -7,21 +7,40 @@ EventFilter::EventFilter(QList<MyBubble*>* l,QObject *parent):QObject(parent)
 
 bool EventFilter::eventFilter(QObject *watched, QEvent *event)
 {
-    if (event->type()==QEvent::MouseButtonPress)
+    if (event->type()==QEvent::GraphicsSceneMousePress)
     {
-        if (dynamic_cast<QMouseEvent*>(event)->button()==Qt::LeftButton)
+        QGraphicsScene* scene=dynamic_cast<QGraphicsScene*>(watched);
+        if (dynamic_cast<QGraphicsSceneMouseEvent*>(event)->button()==Qt::LeftButton)
         {
-            QGraphicsView* view=dynamic_cast<QGraphicsView*>(watched);
-            if (view)
+            if (scene)
             {
                if (!items->empty())
                {
-                   QGraphicsScene* scene=view->scene();
                    MyBubble* b=new MyBubble(*(items->at(0)));
-                   b->setPos(view->mapToScene(dynamic_cast<QMouseEvent*>(event)->pos()));
                    scene->addItem((QGraphicsItem*)b);
+                   b->setPosition(dynamic_cast<QGraphicsSceneMouseEvent*>(event)->scenePos());
                    items->append(b);
                }
+            }
+        }
+        if (dynamic_cast<QGraphicsSceneMouseEvent*>(event)->button()==Qt::RightButton)
+        {
+            if (scene)
+            {
+                QGraphicsView* view=NULL;
+                if  (!scene->views().isEmpty())
+                {
+                    view=scene->views().last();
+                }
+                   QGraphicsItem* item=scene->itemAt(dynamic_cast<QGraphicsSceneMouseEvent*>(event)->scenePos(),view->transform());
+                   if (item)
+                   {
+                       MyBubble* b=dynamic_cast<MyBubble*>(item);
+                       //b->setPosition(dynamic_cast<QGraphicsSceneMouseEvent*>(event)->scenePos());
+                       scene->removeItem(item);
+                       items->removeAll(b);
+                       delete b;
+                   }
             }
         }
     }

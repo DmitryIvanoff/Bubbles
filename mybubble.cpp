@@ -5,7 +5,7 @@ MyBubble::MyBubble(qreal d):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
     diameter=d;
     velocity.setX(0);
     velocity.setY(0);
-    setPos(QPoint(qrand()%200,qrand()%200));
+    setPos(QPoint(qrand()%400,qrand()%400));
     anim=new QPropertyAnimation(this,"position");
     anim->setDuration(10);
 }
@@ -47,7 +47,7 @@ MyBubble::~MyBubble()
 
 QRectF MyBubble::boundingRect() const
 {
-    return QRectF(x(),y(),diameter,diameter);
+    return QRectF(-diameter/2,-diameter/2,diameter,diameter);
 }
 
 void MyBubble::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
@@ -59,11 +59,14 @@ void MyBubble::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 //    }
 //    else
 //    {
+
 //        painter->setPen(Qt::red);
+
+
 //    }
     painter->drawEllipse(boundingRect());
-    //    painter->setPen(Qt::green);
-    //    painter->drawRect(boundingRect());
+//        painter->setPen(Qt::green);
+//        painter->drawRect(boundingRect());
 }
 
 QPainterPath MyBubble::shape() const
@@ -79,10 +82,12 @@ void MyBubble::advance(int phase)
     {
         QPointF v=getV();
         QPointF p=getPosition();
-        anim->setStartValue(p);
-        anim->setEndValue(QPointF(p.x()+v.x(),p.y()+v.y()));
-        anim->start();
+//        anim->setStartValue(p);
+//        anim->setEndValue(QPointF(p.x()+v.x(),p.y()+v.y()));
+//        anim->start();
+        setPosition(QPointF(p.x()+v.x(),p.y()+v.y()));
     }
+
 
 }
 

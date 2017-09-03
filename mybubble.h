@@ -3,6 +3,8 @@
 #include <QGraphicsObject>
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QGraphicsSceneEvent>
+#include <QGraphicsSceneEvent>
 #include <QtCore>
 #include <QtGui>
 class MyBubble : public QGraphicsObject
@@ -31,9 +33,9 @@ public:
     void setDiameter(const qreal &value);
 
     int getFrameDuration() const;
-
-private:
     QPropertyAnimation* anim;
+private:
+   // QPropertyAnimation* anim;
     QMutex V_mutex;
     QMutex Pos_mutex;
     QMutex d_mutex;

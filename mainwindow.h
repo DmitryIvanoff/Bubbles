@@ -5,6 +5,8 @@
 #include <QtCore>
 #include <QtGui>
 #include <QGraphicsScene>
+#include <QGraphicsSceneEvent>
+#include <QGraphicsSceneMouseEvent>
 #include <QGridLayout>
 #include <QDesktopWidget>
 #include <QMutableListIterator>
@@ -16,7 +18,6 @@
 #include <QLabel>
 #include "mybubble.h"
 #include "calculator.h"
-#include "eventfilter.h"
 
 namespace Ui {
 class MainWindow;
@@ -38,8 +39,10 @@ private:
     QList<MyBubble*> items;
     QTimer* timer1;
     QTimer* timer2;
-    QLabel* label;
+    QLabel* CoordinateLabel;
+    QLabel* BubblesAmountLabel;
     Calculator* calculator;
+    int amount;
 
 };
 

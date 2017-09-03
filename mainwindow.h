@@ -18,6 +18,7 @@
 #include <QLabel>
 #include "mybubble.h"
 #include "calculator.h"
+#include "calculatorthread.h"
 
 namespace Ui {
 class MainWindow;
@@ -33,17 +34,19 @@ public:
      bool eventFilter(QObject *watched, QEvent *event);
 protected:
 private:
+     CalculatorThread* CThread;
     QThread* thread;
     Ui::MainWindow *ui;
     QGraphicsScene* scene;
     QList<MyBubble*> items;
-    QTimer* timer1;
-    QTimer* timer2;
+    QTimer* timer;
+    QParallelAnimationGroup* group;
     QLabel* CoordinateLabel;
     QLabel* BubblesAmountLabel;
     Calculator* calculator;
     int amount;
-
+private slots:
+    void advance();
 };
 
 #endif // MAINWINDOW_H

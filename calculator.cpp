@@ -1,8 +1,9 @@
 #include "calculator.h"
 
-Calculator::Calculator(QList<MyBubble *> *l, QObject *parent): QObject(parent)
+Calculator::Calculator(QList<MyBubble *> *l, QObject *parent): QObject(parent),time()
 {
     ItemsList=l;
+    time.start();
 }
 
 Calculator::~Calculator()
@@ -12,7 +13,8 @@ Calculator::~Calculator()
 
 void Calculator::calculate()
 {
-
+    double deltaTime=(qreal)time.elapsed()/(qreal)(1000);
+    time.restart();
     double x;
     double y;
     double v_x;
@@ -50,8 +52,8 @@ void Calculator::calculate()
                     F=fabs(1.0/r-1.0/(r*r));
                     F_x=F*rx/r;
                     F_y=F*ry/r;
-                    v_x+=F_x;
-                    v_y+=F_y;
+                    v_x+=F_x*deltaTime;
+                    v_y+=F_y*deltaTime;
                 }
                 else
                 {
@@ -62,15 +64,19 @@ void Calculator::calculate()
             ++it_2;
         }
         v.push_back(QPointF(v_x,v_y));
-        //(*it)->setV(QPointF(v_x,v_y));
+       //(*it)->setV(QPointF(v_x,v_y));
     }
     it=items.begin();
     std::list<QPointF>::iterator it_v=v.begin();
     for (;it!=items.end();++it)
     {
-       (*it)->setV(*it_v);
+        QPointF v=*it_v;
+        QPointF p=(*it)->getPosition();
+        (*it)->setV(v);
+        (*it)->setPosition(QPointF(p.x()+v.x()*deltaTime,p.y()+v.y()*deltaTime));
         ++it_v;
     }
+
 }
 
 

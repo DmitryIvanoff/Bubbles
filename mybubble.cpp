@@ -6,8 +6,9 @@ MyBubble::MyBubble(qreal d):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
     velocity.setX(0);
     velocity.setY(0);
     setPos(QPoint(qrand()%400,qrand()%400));
-    anim=new QPropertyAnimation(this,"position");
-    anim->setDuration(10);
+    position=pos();
+    anim=new QPropertyAnimation(this,"pos");
+    anim->setEasingCurve(QEasingCurve::Linear);
 }
 
 MyBubble::MyBubble(qreal d, qreal x, qreal y):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
@@ -16,8 +17,9 @@ MyBubble::MyBubble(qreal d, qreal x, qreal y):QGraphicsObject(),V_mutex(),Pos_mu
     velocity.setX(0);
     velocity.setY(0);
     setPos(QPoint(x,y));
-    anim=new QPropertyAnimation(this,"position");
-    anim->setDuration(10);
+    position=pos();
+    anim=new QPropertyAnimation(this,"pos");
+    anim->setEasingCurve(QEasingCurve::Linear);
 }
 
 MyBubble::MyBubble(qreal d, QPointF v, QPointF p):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
@@ -25,23 +27,26 @@ MyBubble::MyBubble(qreal d, QPointF v, QPointF p):QGraphicsObject(),V_mutex(),Po
     diameter=d;
     velocity=v;
     setPos(p);
-    anim=new QPropertyAnimation(this,"position");
-    anim->setDuration(10);
+    position=pos();
+    anim=new QPropertyAnimation(this,"pos");
+    anim->setEasingCurve(QEasingCurve::Linear);
 }
 
-MyBubble::MyBubble(const MyBubble &bubble)
+MyBubble::MyBubble(const MyBubble &bubble):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
 {
     diameter=bubble.diameter;
     velocity.setX(0);
     velocity.setY(0);
     setPos(QPointF(0.0,0.0));
-    anim=new QPropertyAnimation(this,"position");
-    anim->setDuration(bubble.anim->duration());
+    position=pos();
+    anim=new QPropertyAnimation(this,"pos");
+    setFrameDuration(bubble.getFrameDuration());
+    anim->setEasingCurve(QEasingCurve::Linear);
 }
 
 MyBubble::~MyBubble()
 {
-   delete anim;
+    delete anim;
 }
 
 
@@ -80,12 +85,15 @@ void MyBubble::advance(int phase)
 {
     if (phase)
     {
-        QPointF v=getV();
-        QPointF p=getPosition();
-//        anim->setStartValue(p);
-//        anim->setEndValue(QPointF(p.x()+v.x(),p.y()+v.y()));
-//        anim->start();
-        setPosition(QPointF(p.x()+v.x(),p.y()+v.y()));
+//        QPointF v=getV();
+//        QPointF p=getPosition();
+//        qreal deltaTime=(qreal)time.elapsed()/(qreal)FrameDuration;
+//        setPosition(QPointF(p.x()+v.x()*deltaTime,p.y()+v.y()*deltaTime));
+//        time.restart();
+           anim->setStartValue(pos());
+           anim->setEndValue(getPosition());
+           anim->start();
+           //setPos(getPosition());
     }
 
 
@@ -93,7 +101,7 @@ void MyBubble::advance(int phase)
 
 QPointF MyBubble::getV()
 {
-    V_mutex.lock();
+    V_mutex.lockForRead();
     QPointF value;
     value=velocity;
     V_mutex.unlock();
@@ -102,16 +110,16 @@ QPointF MyBubble::getV()
 
 void MyBubble::setV(const QPointF &value)
 {
-     V_mutex.lock();
+     V_mutex.lockForWrite();
      velocity=value;
      V_mutex.unlock();
 }
 
 QPointF MyBubble::getPosition()
 {
-    Pos_mutex.lock();
+    Pos_mutex.lockForRead();
     QPointF value;
-    value=pos();
+    value=position;
     Pos_mutex.unlock();
     return value;
 }
@@ -119,14 +127,14 @@ QPointF MyBubble::getPosition()
 
 void MyBubble::setPosition(const QPointF &value)
 {
-    Pos_mutex.lock();
-    setPos(value);
+    Pos_mutex.lockForWrite();
+    position=value;
     Pos_mutex.unlock();
 }
 
 qreal MyBubble::getDiameter()
 {
-    d_mutex.lock();
+    d_mutex.lockForRead();
     qreal value;
     value=diameter;
     d_mutex.unlock();
@@ -135,22 +143,22 @@ qreal MyBubble::getDiameter()
 
 void MyBubble::setDiameter(const qreal &value)
 {
-    d_mutex.lock();
+    d_mutex.lockForWrite();
     diameter = value;
     d_mutex.unlock();
 }
 
 int MyBubble::getFrameDuration() const
 {
-    return anim->duration();
+    return FrameDuration;
 }
 
 void MyBubble::setFrameDuration(int msecs)
 {
-    if (anim)
-    {
+
+        FrameDuration=msecs;
         anim->setDuration(msecs);
-    }
+
 }
 
 

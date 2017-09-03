@@ -7,12 +7,13 @@ class Calculator : public QObject
 {
     Q_OBJECT
 public:
-     Calculator(QList<MyBubble*>* l,QObject* parent =0);
+     Calculator(QList<MyBubble*>* l, QObject* parent =0);
     ~Calculator();
 
 
 private:
   QList<MyBubble*>* ItemsList;
+  QTime time;
 public slots:
   void calculate();
 };

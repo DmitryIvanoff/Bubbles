@@ -10,7 +10,6 @@
 class MyBubble : public QGraphicsObject
 {
      Q_OBJECT
-     Q_PROPERTY(QPointF position READ getPosition WRITE setPosition)
 public:
     MyBubble(qreal);
     MyBubble(qreal,qreal,qreal);
@@ -35,10 +34,12 @@ public:
     int getFrameDuration() const;
     QPropertyAnimation* anim;
 private:
-   // QPropertyAnimation* anim;
-    QMutex V_mutex;
-    QMutex Pos_mutex;
-    QMutex d_mutex;
+    //QPropertyAnimation* anim;
+    int FrameDuration;
+    QReadWriteLock V_mutex;
+    QReadWriteLock Pos_mutex;
+    QReadWriteLock d_mutex;
+    QPointF position;
     qreal diameter;
     QPointF velocity;
 public slots:

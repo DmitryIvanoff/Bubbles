@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :
     l->addWidget(ui->graphicsView);
     ui->centralWidget->setLayout(l);
     setWindowTitle("Bubbles");
-    //setMinimumSize(QSize(sceneWidth+100,sceneHeight+100));
+    setMinimumSize(QSize(sceneWidth+100,sceneHeight+100));
     CoordinateLabel=new QLabel(this);
     BubblesAmountLabel=new QLabel(this);
     scene->installEventFilter(this);
@@ -31,37 +31,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->statusBar->addWidget(BubblesAmountLabel);
     ui->statusBar->addWidget(CoordinateLabel);
     BubblesAmountLabel->setText("amount: "+QString::number(amount));
-    group=new QParallelAnimationGroup(this);
     for (int i=0;i<amount;++i)
     {
         MyBubble* item= new MyBubble(10);
         item->setFrameDuration(updPeriod);
         scene->addItem((QGraphicsItem*)item);
-        group->addAnimation(item->anim);
         items.append(item);
     }
-    // calculator=new Calculator(&items);
-
     thread=new QThread(this);
-    //calculator->moveToThread(thread);
     timer=new QTimer(this);
     CThread=new CalculatorThread(&items,16,this);
     connect(timer,SIGNAL(timeout()),scene,SLOT(advance()));
-    // connect(timer,SIGNAL(timeout()),group,SLOT(start()));
-    //   connect(timer1,SIGNAL(timeout()),this,SLOT(advance()));
-    //    connect(thread, SIGNAL(finished()),calculator,SLOT(deleteLater()));
-    //    connect(timer1,SIGNAL(timeout()),calculator,SLOT(calculate()));
-    //thread->start(QThread::NormalPriority);
     QThread::currentThread()->setPriority(QThread::NormalPriority);
-
     timer->start(updPeriod);
     CThread->start(QThread::NormalPriority);
-    //    timer2->start(updPeriod*10);
-
-
-
-
-
 }
 
 MainWindow::~MainWindow()
@@ -73,8 +56,6 @@ MainWindow::~MainWindow()
     //        scene->removeItem(item);
     //        delete item;
     //    }
-//    thread->quit();
-//    thread->wait();
     CThread->quit();
     CThread->wait();
     foreach (MyBubble* obj,items)

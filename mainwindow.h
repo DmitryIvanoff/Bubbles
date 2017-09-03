@@ -34,13 +34,11 @@ public:
      bool eventFilter(QObject *watched, QEvent *event);
 protected:
 private:
-     CalculatorThread* CThread;
-    QThread* thread;
+    CalculatorThread* CThread;
     Ui::MainWindow *ui;
     QGraphicsScene* scene;
     QList<MyBubble*> items;
     QTimer* timer;
-    QParallelAnimationGroup* group;
     QLabel* CoordinateLabel;
     QLabel* BubblesAmountLabel;
     Calculator* calculator;

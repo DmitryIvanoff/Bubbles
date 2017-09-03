@@ -8,10 +8,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    amount=1000;
+    amount=100;
     double sceneWidth=400;
     double sceneHeight=400;
-    int updPeriod=33;
+    int updPeriod=16;
     scene=new QGraphicsScene(0,0,sceneWidth,sceneHeight,this);
     ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().top(),QPen(Qt::red));
@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     thread=new QThread(this);
     //calculator->moveToThread(thread);
     timer=new QTimer(this);
-    CThread=new CalculatorThread(&items,33,this);
+    CThread=new CalculatorThread(&items,16,this);
     connect(timer,SIGNAL(timeout()),scene,SLOT(advance()));
     // connect(timer,SIGNAL(timeout()),group,SLOT(start()));
     //   connect(timer1,SIGNAL(timeout()),this,SLOT(advance()));

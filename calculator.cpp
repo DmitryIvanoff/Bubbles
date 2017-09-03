@@ -58,7 +58,7 @@ void Calculator::calculate()
                 else
                 {
                     //v_x+=v2.x();
-                   // v_y+=v2.y();
+                    //v_y+=v2.y();
                 }
             }
             ++it_2;

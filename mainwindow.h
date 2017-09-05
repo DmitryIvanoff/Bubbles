@@ -39,6 +39,7 @@ private:
     QGraphicsScene* scene;
     QList<MyBubble*> items;
     QTimer* timer;
+    //QTimeLine* timeLine;
     QLabel* CoordinateLabel;
     QLabel* BubblesAmountLabel;
     Calculator* calculator;

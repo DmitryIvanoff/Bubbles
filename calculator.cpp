@@ -72,8 +72,9 @@ void Calculator::calculate()
     {
         QPointF v=*it_v;
         QPointF p=(*it)->getPosition();
+        QPointF pEnd=QPointF(p.x()+v.x()*deltaTime,p.y()+v.y()*deltaTime);
         (*it)->setV(v);
-        (*it)->setPosition(QPointF(p.x()+v.x()*deltaTime,p.y()+v.y()*deltaTime));
+        (*it)->setPosition(pEnd);
         ++it_v;
     }
 

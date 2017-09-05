@@ -27,7 +27,6 @@ public:
     void setPosition(const QPointF &value);
 
 
-
     qreal getDiameter();
     void setDiameter(const qreal &value);
 
@@ -44,6 +43,7 @@ private:
     QPointF velocity;
 public slots:
     void setFrameDuration(int);
+    void updatePosition(int);
 
 };
 

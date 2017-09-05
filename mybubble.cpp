@@ -85,15 +85,12 @@ void MyBubble::advance(int phase)
 {
     if (phase)
     {
-//        QPointF v=getV();
-//        QPointF p=getPosition();
-//        qreal deltaTime=(qreal)time.elapsed()/(qreal)FrameDuration;
-//        setPosition(QPointF(p.x()+v.x()*deltaTime,p.y()+v.y()*deltaTime));
-//        time.restart();
-           anim->setStartValue(pos());
-           anim->setEndValue(getPosition());
-           anim->start();
-           //setPos(getPosition());
+//        anim->start();
+           setPos(getPosition());
+    }
+    else
+    {
+        anim->setEndValue(getPosition());
     }
 
 
@@ -132,6 +129,7 @@ void MyBubble::setPosition(const QPointF &value)
     Pos_mutex.unlock();
 }
 
+
 qreal MyBubble::getDiameter()
 {
     d_mutex.lockForRead();
@@ -159,6 +157,11 @@ void MyBubble::setFrameDuration(int msecs)
         FrameDuration=msecs;
         anim->setDuration(msecs);
 
+}
+
+void MyBubble::updatePosition(int frame)
+{
+    setPos(getPosition());
 }
 
 

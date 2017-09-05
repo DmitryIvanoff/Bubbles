@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    amount=100;
+    amount=400;
     double sceneWidth=400;
     double sceneHeight=400;
     int updPeriod=16;
@@ -30,19 +30,23 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->graphicsView->setMouseTracking(true);
     ui->statusBar->addWidget(BubblesAmountLabel);
     ui->statusBar->addWidget(CoordinateLabel);
+//    timeLine=new QTimeLine(1000,this);
+//    timeLine->setFrameRange(0,100);
+//    timeLine->setLoopCount(0);
     BubblesAmountLabel->setText("amount: "+QString::number(amount));
     for (int i=0;i<amount;++i)
     {
         MyBubble* item= new MyBubble(10);
         item->setFrameDuration(updPeriod);
         scene->addItem((QGraphicsItem*)item);
+        //connect(timeLine,SIGNAL(frameChanged(int)),item,SLOT(updatePosition(int)));
         items.append(item);
     }
-    thread=new QThread(this);
     timer=new QTimer(this);
     CThread=new CalculatorThread(&items,16,this);
     connect(timer,SIGNAL(timeout()),scene,SLOT(advance()));
     QThread::currentThread()->setPriority(QThread::NormalPriority);
+   //timeLine->start();
     timer->start(updPeriod);
     CThread->start(QThread::NormalPriority);
 }
@@ -90,6 +94,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                    MyBubble* b=new MyBubble(*(items.at(0)));
                    scene->addItem((QGraphicsItem*)b);
                    BubblesAmountLabel->setText("amount: "+QString::number(++amount));
+                   //connect(timeLine,SIGNAL(frameChanged(int)),b,SLOT(updatePosition(int)));
                    b->setPos(dynamic_cast<QGraphicsSceneMouseEvent*>(event)->scenePos());
                    b->setPosition(b->pos());
                    items.append(b);

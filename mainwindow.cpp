@@ -86,7 +86,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
             if (scene)
             {
                items_mutex.lock();
-               qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
+               qDebug()<<"mutex is locked by "<<::currentThreadId();
                if (!items.empty())
                {
                    MyBubble* b=new MyBubble(*(items.at(0)));

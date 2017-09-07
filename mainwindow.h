@@ -43,6 +43,7 @@ private:
     QLabel* CoordinateLabel;
     QLabel* BubblesAmountLabel;
     Calculator* calculator;
+    QMutex items_mutex;
     int amount;
 private slots:
     void advance();

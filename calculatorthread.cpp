@@ -1,10 +1,10 @@
 #include "calculatorthread.h"
 
-CalculatorThread::CalculatorThread(QList<MyBubble *> *l, int updateInterval, QObject *parent):QThread(parent)
+CalculatorThread::CalculatorThread(QList<MyBubble *> *l,QMutex* m, int updateInterval, QObject *parent):QThread(parent)
 {
    timer=new QTimer();
    interval=updateInterval;
-   calculator=new Calculator(l);
+   calculator=new Calculator(l,m);
    timer->moveToThread(this);
    calculator->moveToThread(this);
    connect(timer,SIGNAL(timeout()),calculator,SLOT(calculate()));

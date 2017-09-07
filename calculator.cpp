@@ -1,9 +1,10 @@
 #include "calculator.h"
 
-Calculator::Calculator(QList<MyBubble *> *l, QObject *parent): QObject(parent),time()
+Calculator::Calculator(QList<MyBubble *> *l,QMutex* m, QObject *parent): QObject(parent),time()
 {
     ItemsList=l;
     time.start();
+    mutex=m;
 }
 
 Calculator::~Calculator()
@@ -26,6 +27,8 @@ void Calculator::calculate()
     double F_x;
     double F_y;
     std::list<QPointF> v;
+    mutex->lock();
+    qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
     std::list<MyBubble*> items=ItemsList->toStdList();
     std::list<MyBubble*>::iterator it=items.begin();
     std::list<MyBubble*>::iterator it_2;
@@ -77,7 +80,7 @@ void Calculator::calculate()
         (*it)->setPosition(pEnd);
         ++it_v;
     }
-
+    mutex->unlock();
 }
 
 

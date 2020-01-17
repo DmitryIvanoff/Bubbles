@@ -15,7 +15,6 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),
     const double sceneWidth=400.0;
     const double sceneHeight=400.0;
     scene=new QGraphicsScene(0,0,sceneWidth,sceneHeight,this);
-    //scene->setItemIndexMethod(QGraphicsScene::NoIndex);
     scene->installEventFilter(this);
     QGridLayout* l=new QGridLayout;
     l->addWidget(ui->graphicsView);
@@ -34,10 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),
 
     ui->statusBar->addWidget(BubblesAmountLabel);
     ui->statusBar->addWidget(CoordinateLabel);
-    //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().top(),QPen(Qt::red));
-    //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().left(),scene->sceneRect().bottom(),QPen(Qt::red));
-    //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().bottom(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
-    //    scene->addLine(scene->sceneRect().right(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
     int updatePeriod=1000/FPS;//result in msec
     timer=new QTimer(this);
     connect(timer,SIGNAL(timeout()),scene,SLOT(advance()));
@@ -52,18 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),
     CThread=new CalculatorThread(&items,&items_mutex,updatePeriod/6,this);
     timer->start(updatePeriod);
     CThread->start();
-    //qDebug()<<"constructed";
 }
 
 MainWindow::~MainWindow()
 {
-    //    QMutableListIterator<MyBubble*> it(list);
-    //    while (it.hasNext())
-    //    {
-    //        MyBubble* item=it.next();
-    //        scene->removeItem(item);
-    //        delete item;
-    //    }
     CThread->quit();
     CThread->wait();
     for (MyBubble* obj: items)

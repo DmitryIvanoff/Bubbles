@@ -1,10 +1,10 @@
 #include "calculator.h"
 
-Calculator::Calculator(QList<MyBubble *> *l,QMutex* m, QObject *parent): QObject(parent),time()
+Calculator::Calculator(BubbleList* l,QMutex* m): QObject(nullptr),time()
 {
-    ItemsList=l;
-    time.start();
+    items=l;
     mutex=m;
+    time.start();
 }
 
 Calculator::~Calculator()
@@ -14,38 +14,26 @@ Calculator::~Calculator()
 
 void Calculator::calculate()
 {
-    double deltaTime=(qreal)time.elapsed()/(qreal)(1000);
-    time.restart();
-    double x;
-    double y;
-    double v_x;
-    double v_y;
-    double rx;
-    double ry;
-    double r;
-    double F;
-    double F_x;
-    double F_y;
-    std::list<QPointF> v;
+
+    double x,y,v_x,v_y;
+    double rx,ry,r;
+    double F,F_x,F_y;
     mutex->lock();
-    qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
-    std::list<MyBubble*> items=ItemsList->toStdList();
-    std::list<MyBubble*>::iterator it=items.begin();
-    std::list<MyBubble*>::iterator it_2;
-    for (;it!=items.end();++it)
+    double deltaTime=(double)time.elapsed()/(double)(100);
+    time.restart();
+    //qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
+    for (BubbleList::iterator it=items->begin();it!=items->end();++it)
     {
-        it_2=items.begin();
         QPointF v1=(*it)->getV();
         QPointF p1=(*it)->getPosition();
         v_x=v1.x();
         v_y=v1.y();
         x=p1.x();
         y=p1.y();
-        while (it_2!=items.end())
+        for (BubbleList::const_iterator it_2=items->cbegin();it_2!=items->cend();++it_2)
         {
             if (it!=it_2)
             {
-                QPointF v2=(*it_2)->getV();
                 QPointF p2=(*it_2)->getPosition();
                 rx=p2.x()-x;
                 ry=p2.y()-y;
@@ -53,8 +41,8 @@ void Calculator::calculate()
                 if (r>(*it)->getDiameter())
                 {
                     F=fabs(1.0/r-1.0/(r*r));
-                    F_x=F*rx/r;
-                    F_y=F*ry/r;
+                    F_x=F*(rx/r);
+                    F_y=F*(ry/r);
                     v_x+=F_x*deltaTime;
                     v_y+=F_y*deltaTime;
                 }
@@ -64,21 +52,10 @@ void Calculator::calculate()
                     //v_y+=v2.y();
                 }
             }
-            ++it_2;
         }
-        v.push_back(QPointF(v_x,v_y));
-       //(*it)->setV(QPointF(v_x,v_y));
-    }
-    it=items.begin();
-    std::list<QPointF>::iterator it_v=v.begin();
-    for (;it!=items.end();++it)
-    {
-        QPointF v=*it_v;
-        QPointF p=(*it)->getPosition();
-        QPointF pEnd=QPointF(p.x()+v.x()*deltaTime,p.y()+v.y()*deltaTime);
-        (*it)->setV(v);
-        (*it)->setPosition(pEnd);
-        ++it_v;
+       (*it)->setV(QPointF(v_x,v_y));
+       QPointF pEnd=QPointF(p1.x()+v_x*deltaTime,p1.y()+v_y*deltaTime);
+       (*it)->setPosition(pEnd);
     }
     mutex->unlock();
 }

@@ -3,16 +3,18 @@
 #include "mybubble.h"
 #include <QObject>
 
+using BubbleList=std::list<MyBubble*>;
+
 class Calculator : public QObject
 {
     Q_OBJECT
 public:
-     Calculator(QList<MyBubble*>* l,QMutex* m, QObject* parent =0);
+     Calculator(BubbleList* l,QMutex* m);
     ~Calculator();
 
 
 private:
-  QList<MyBubble*>* ItemsList;
+  BubbleList* items;
   QTime time;
   QMutex* mutex;
 public slots:

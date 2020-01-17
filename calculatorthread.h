@@ -6,7 +6,8 @@ class CalculatorThread : public QThread
 {
     Q_OBJECT
 public:
-    CalculatorThread(QList<MyBubble *> *l,QMutex* m,int updateInterval, QObject *parent=0);
+    CalculatorThread(BubbleList *l,QMutex* m,int updateInterval, QObject *parent=0);
+    ~CalculatorThread();
  protected:
     virtual void run();
     QTimer* timer;

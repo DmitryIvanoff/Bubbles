@@ -13,37 +13,30 @@ class MyBubble : public QGraphicsObject
 public:
     MyBubble(qreal);
     MyBubble(qreal,qreal,qreal);
-    MyBubble(qreal,QPointF,QPointF);
+    MyBubble(qreal,QPointF velocity,QPointF position);
     MyBubble(const MyBubble&);
     virtual ~MyBubble();
-     QRectF boundingRect() const;
-     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-    QPainterPath shape() const;
-    void advance(int phase);
-
+     QRectF boundingRect() const override;
+     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+    QPainterPath shape() const override;
+    void advance(int) override;
     QPointF getV();
     void setV(const QPointF &value);
-    QPointF getPosition();
-    void setPosition(const QPointF &value);
-
 
     qreal getDiameter();
     void setDiameter(const qreal &value);
 
+    QPointF getPosition() const;
+    void setPosition(const QPointF &value);
+
     int getFrameDuration() const;
-    QPropertyAnimation* anim;
+    void setFrameDuration(int value);
+
 private:
-    //QPropertyAnimation* anim;
-    int FrameDuration;
-    QReadWriteLock V_mutex;
-    QReadWriteLock Pos_mutex;
-    QReadWriteLock d_mutex;
-    QPointF position;
+    QPropertyAnimation* anim;
     qreal diameter;
+    QPointF position;
     QPointF velocity;
-public slots:
-    void setFrameDuration(int);
-    void updatePosition(int);
 
 };
 

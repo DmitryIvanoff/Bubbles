@@ -1,52 +1,47 @@
 #include "mybubble.h"
 
-MyBubble::MyBubble(qreal d):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
+MyBubble::MyBubble(qreal d):QGraphicsObject(),
+                                         diameter(d),
+                                         velocity(0,0)
 {
-    diameter=d;
-    velocity.setX(0);
-    velocity.setY(0);
     setPos(QPoint(qrand()%400,qrand()%400));
-    position=pos();
     anim=new QPropertyAnimation(this,"pos");
     anim->setEasingCurve(QEasingCurve::Linear);
+    position=pos();
 }
 
-MyBubble::MyBubble(qreal d, qreal x, qreal y):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
+MyBubble::MyBubble(qreal d, qreal x, qreal y):QGraphicsObject(),
+                                              diameter(d),
+                                              velocity(0,0)
 {
-    diameter=d;
-    velocity.setX(0);
-    velocity.setY(0);
-    setPos(QPoint(x,y));
-    position=pos();
+    setPos(QPointF(x,y));
     anim=new QPropertyAnimation(this,"pos");
     anim->setEasingCurve(QEasingCurve::Linear);
+    position=pos();
 }
 
-MyBubble::MyBubble(qreal d, QPointF v, QPointF p):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
+MyBubble::MyBubble(qreal d, QPointF v, QPointF p):QGraphicsObject(),
+                                                  diameter(d),
+                                                  velocity(v)
 {
-    diameter=d;
-    velocity=v;
     setPos(p);
-    position=pos();
     anim=new QPropertyAnimation(this,"pos");
     anim->setEasingCurve(QEasingCurve::Linear);
+    position=pos();
 }
 
-MyBubble::MyBubble(const MyBubble &bubble):QGraphicsObject(),V_mutex(),Pos_mutex(),d_mutex()
+MyBubble::MyBubble(const MyBubble &bubble):QGraphicsObject(),
+                                           diameter(bubble.diameter),
+                                           velocity(0,0)
 {
-    diameter=bubble.diameter;
-    velocity.setX(0);
-    velocity.setY(0);
-    setPos(QPointF(0.0,0.0));
+    setPos(bubble.pos());
     position=pos();
     anim=new QPropertyAnimation(this,"pos");
-    setFrameDuration(bubble.getFrameDuration());
     anim->setEasingCurve(QEasingCurve::Linear);
 }
 
 MyBubble::~MyBubble()
 {
-    delete anim;
 }
 
 
@@ -85,84 +80,67 @@ void MyBubble::advance(int phase)
 {
     if (phase)
     {
-//        anim->start();
-           setPos(getPosition());
+        //setPos(position);
+        anim->start();
     }
     else
     {
-        anim->setEndValue(getPosition());
+        if (anim->state() == QPropertyAnimation::Running)
+        {
+            anim->setCurrentTime(anim->totalDuration());
+        }
+        if (anim->state() ==QPropertyAnimation::Stopped)
+        {
+            anim->setEndValue(position);
+            anim->setDuration();
+        }
     }
-
-
 }
+
 
 QPointF MyBubble::getV()
 {
-    V_mutex.lockForRead();
-    QPointF value;
-    value=velocity;
-    V_mutex.unlock();
-    return value;
+    return velocity;
 }
 
 void MyBubble::setV(const QPointF &value)
 {
-     V_mutex.lockForWrite();
      velocity=value;
-     V_mutex.unlock();
 }
-
-QPointF MyBubble::getPosition()
-{
-    Pos_mutex.lockForRead();
-    QPointF value;
-    value=position;
-    Pos_mutex.unlock();
-    return value;
-}
-
-
-void MyBubble::setPosition(const QPointF &value)
-{
-    Pos_mutex.lockForWrite();
-    position=value;
-    Pos_mutex.unlock();
-}
-
 
 qreal MyBubble::getDiameter()
 {
-    d_mutex.lockForRead();
-    qreal value;
-    value=diameter;
-    d_mutex.unlock();
-    return value;
+    return diameter;
 }
 
 void MyBubble::setDiameter(const qreal &value)
 {
-    d_mutex.lockForWrite();
     diameter = value;
-    d_mutex.unlock();
+}
+
+QPointF MyBubble::getPosition() const
+{
+    return position;
+}
+
+void MyBubble::setPosition(const QPointF &value)
+{
+
+
+
+    position = value;
 }
 
 int MyBubble::getFrameDuration() const
 {
-    return FrameDuration;
+    return anim->duration();
 }
 
-void MyBubble::setFrameDuration(int msecs)
+void MyBubble::setFrameDuration(int value)
 {
-
-        FrameDuration=msecs;
-        anim->setDuration(msecs);
-
+    anim->setDuration(value);
 }
 
-void MyBubble::updatePosition(int frame)
-{
-    setPos(getPosition());
-}
 
 
 

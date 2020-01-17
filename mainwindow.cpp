@@ -3,48 +3,54 @@
 
 
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    items_mutex()
+MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),
+                                         ui(new Ui::MainWindow),
+                                         FPS(60),
+                                         items_mutex(),
+                                         amount(500),
+                                         items(),
+                                         BubbleDiameter(10)
 {
     ui->setupUi(this);
-    amount=200;
-    double sceneWidth=400;
-    double sceneHeight=400;
-    int updPeriod=16;
+    const double sceneWidth=400.0;
+    const double sceneHeight=400.0;
     scene=new QGraphicsScene(0,0,sceneWidth,sceneHeight,this);
-    ui->graphicsView->setRenderHint(QPainter::Antialiasing);
-//    scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().top(),QPen(Qt::red));
-//    scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().left(),scene->sceneRect().bottom(),QPen(Qt::red));
-//    scene->addLine(scene->sceneRect().left(),scene->sceneRect().bottom(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
-//    scene->addLine(scene->sceneRect().right(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
-    ui->graphicsView->setScene(scene);
+    //scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+    scene->installEventFilter(this);
     QGridLayout* l=new QGridLayout;
     l->addWidget(ui->graphicsView);
+
     ui->centralWidget->setLayout(l);
-    setWindowTitle("Bubbles");
-    setMinimumSize(QSize(sceneWidth+100,sceneHeight+100));
-    CoordinateLabel=new QLabel(this);
-    BubblesAmountLabel=new QLabel(this);
-    scene->installEventFilter(this);
+    ui->graphicsView->setScene(scene);
+    ui->graphicsView->setRenderHint(QPainter::Antialiasing);
     ui->graphicsView->setMouseTracking(true);
+
+    setWindowTitle("Bubbles");
+    setMinimumSize(QSize(sceneWidth+100.0,sceneHeight+100.0));
+
+    BubblesAmountLabel=new QLabel(this);
+    CoordinateLabel=new QLabel(this);
+    BubblesAmountLabel->setText("amount: "+QString::number(amount));
+
     ui->statusBar->addWidget(BubblesAmountLabel);
     ui->statusBar->addWidget(CoordinateLabel);
-    BubblesAmountLabel->setText("amount: "+QString::number(amount));
-    for (int i=0;i<amount;++i)
-    {
-        MyBubble* item= new MyBubble(10);
-        item->setFrameDuration(updPeriod);
-        scene->addItem((QGraphicsItem*)item);
-        items.append(item);
-    }
+    //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().top(),QPen(Qt::red));
+    //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().left(),scene->sceneRect().bottom(),QPen(Qt::red));
+    //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().bottom(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
+    //    scene->addLine(scene->sceneRect().right(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
     timer=new QTimer(this);
-    CThread=new CalculatorThread(&items,&items_mutex,updPeriod,this);
     connect(timer,SIGNAL(timeout()),scene,SLOT(advance()));
-    QThread::currentThread()->setPriority(QThread::NormalPriority);
-    timer->start(updPeriod);
-    CThread->start(QThread::NormalPriority);
+    for (uint32_t i=0;i<amount;++i)
+    {
+        MyBubble* item= new MyBubble(BubbleDiameter);
+        scene->addItem(static_cast<QGraphicsItem*>(item));
+        items.push_back(item);
+    }
+    int updatePeriod=1000/FPS; //result in msec
+    CThread=new CalculatorThread(&items,&items_mutex,updatePeriod/6,this);
+    timer->start(updatePeriod);
+    CThread->start();
+    //qDebug()<<"constructed";
 }
 
 MainWindow::~MainWindow()
@@ -58,7 +64,7 @@ MainWindow::~MainWindow()
     //    }
     CThread->quit();
     CThread->wait();
-    foreach (MyBubble* obj,items)
+    for (MyBubble* obj: items)
     {
         scene->removeItem(obj);
         delete obj;
@@ -69,68 +75,59 @@ MainWindow::~MainWindow()
 
 bool MainWindow::eventFilter(QObject *watched, QEvent *event)
 {
-    QGraphicsScene* view=dynamic_cast<QGraphicsScene*>(watched);
-    if (view)
+
+    if (watched == scene)
     {
         if (event->type()==QEvent::GraphicsSceneMouseMove)
         {
-            QGraphicsSceneMouseEvent* e=dynamic_cast<QGraphicsSceneMouseEvent*>(event);
-            CoordinateLabel->setText(QString("x: %1;y: %2").arg(e->scenePos().x()).arg(e->scenePos().y()));
+            //qDebug()<<"mouse move";
+            QGraphicsSceneMouseEvent* me=static_cast<QGraphicsSceneMouseEvent*>(event);
+            CoordinateLabel->setText(QString("x: %1;y: %2").arg(me->scenePos().x()).arg(me->scenePos().y()));
+            return true;
         }
-    }
-    if (event->type()==QEvent::GraphicsSceneMousePress)
-    {
-        QGraphicsScene* scene=dynamic_cast<QGraphicsScene*>(watched);
-        if (dynamic_cast<QGraphicsSceneMouseEvent*>(event)->button()==Qt::LeftButton)
+
+        if (event->type()==QEvent::GraphicsSceneMousePress)
         {
-            if (scene)
+            QGraphicsSceneMouseEvent* me=static_cast<QGraphicsSceneMouseEvent*>(event);
+            if (me->button()==Qt::LeftButton)
             {
-               items_mutex.lock();
-               qDebug()<<"mutex is locked by "<<::currentThreadId();
-               if (!items.empty())
-               {
-                   MyBubble* b=new MyBubble(*(items.at(0)));
-                   scene->addItem((QGraphicsItem*)b);
-                   BubblesAmountLabel->setText("amount: "+QString::number(++amount));
-                   b->setPos(dynamic_cast<QGraphicsSceneMouseEvent*>(event)->scenePos());
-                   b->setPosition(b->pos());
-                   items.append(b);
-               }
-               items_mutex.unlock();
+                items_mutex.lock();
+                //qDebug()<<"mouse press";
+                //qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
+                MyBubble* b=new MyBubble(BubbleDiameter,QPointF(0,0),me->buttonDownScenePos(Qt::LeftButton));
+                scene->addItem(b);
+                BubblesAmountLabel->setText("amount: "+QString::number(++amount));
+                items.push_back(b);
+                items_mutex.unlock();
+
             }
-        }
-        if (dynamic_cast<QGraphicsSceneMouseEvent*>(event)->button()==Qt::RightButton)
-        {
-            if (scene)
+            if (me->button()==Qt::RightButton)
             {
-                QGraphicsView* view=NULL;
-                if  (!scene->views().isEmpty())
-                {
-                    view=scene->views().last();
-                }
-                QGraphicsItem* item=scene->itemAt(dynamic_cast<QGraphicsSceneMouseEvent*>(event)->scenePos(),view->transform());
+                QGraphicsItem* item=scene->itemAt(me->buttonDownScenePos(Qt::RightButton),ui->graphicsView->transform());
                 if (item)
                 {
-                    MyBubble* b=dynamic_cast<MyBubble*>(item);
+                    MyBubble* b=static_cast<MyBubble*>(item);
                     BubblesAmountLabel->setText("amount: "+QString::number(--amount));
                     scene->removeItem(item);
                     items_mutex.lock();
-                    qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
-                    items.removeAll(b);
+                    //qDebug()<<"mouse rb pressed";
+                    //qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
+                    items.remove(b);
                     items_mutex.unlock();
                     delete b;
                 }
             }
+            return true;
         }
+        return false;
     }
-
-    return false;
+    else
+    {
+        return QMainWindow::eventFilter(watched, event);
+    }
 }
 
-void MainWindow::advance()
-{
 
-}
 
 
 

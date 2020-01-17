@@ -27,7 +27,6 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -37,16 +36,16 @@ private:
     CalculatorThread* CThread;
     Ui::MainWindow *ui;
     QGraphicsScene* scene;
-    QList<MyBubble*> items;
+    BubbleList items;
     QTimer* timer;
     //QTimeLine* timeLine;
     QLabel* CoordinateLabel;
     QLabel* BubblesAmountLabel;
     Calculator* calculator;
     QMutex items_mutex;
-    int amount;
-private slots:
-    void advance();
+    qreal BubbleDiameter;
+    int FPS;
+    uint32_t amount;
 };
 
 #endif // MAINWINDOW_H

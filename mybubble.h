@@ -11,9 +11,9 @@ class MyBubble : public QGraphicsObject
 {
      Q_OBJECT
 public:
-    MyBubble(qreal);
-    MyBubble(qreal,qreal,qreal);
-    MyBubble(qreal,QPointF velocity,QPointF position);
+    MyBubble(qreal diameter,int duration);
+    MyBubble(qreal diameter,qreal x ,qreal y, int duration);
+    MyBubble(qreal diameter,QPointF velocity,QPointF position, int duration);
     MyBubble(const MyBubble&);
     virtual ~MyBubble();
      QRectF boundingRect() const override;

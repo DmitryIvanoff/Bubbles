@@ -1,32 +1,36 @@
 #include "mybubble.h"
 
-MyBubble::MyBubble(qreal d):QGraphicsObject(),
+MyBubble::MyBubble(qreal d,int dur):QGraphicsObject(),
                                          diameter(d),
                                          velocity(0,0)
 {
     setPos(QPoint(qrand()%400,qrand()%400));
     anim=new QPropertyAnimation(this,"pos");
     anim->setEasingCurve(QEasingCurve::Linear);
+    anim->setDuration(dur);
     position=pos();
+
 }
 
-MyBubble::MyBubble(qreal d, qreal x, qreal y):QGraphicsObject(),
+MyBubble::MyBubble(qreal d, qreal x, qreal y,int dur):QGraphicsObject(),
                                               diameter(d),
                                               velocity(0,0)
 {
     setPos(QPointF(x,y));
     anim=new QPropertyAnimation(this,"pos");
     anim->setEasingCurve(QEasingCurve::Linear);
+    anim->setDuration(dur);
     position=pos();
 }
 
-MyBubble::MyBubble(qreal d, QPointF v, QPointF p):QGraphicsObject(),
+MyBubble::MyBubble(qreal d, QPointF v, QPointF p,int dur):QGraphicsObject(),
                                                   diameter(d),
                                                   velocity(v)
 {
     setPos(p);
     anim=new QPropertyAnimation(this,"pos");
     anim->setEasingCurve(QEasingCurve::Linear);
+    anim->setDuration(dur);
     position=pos();
 }
 
@@ -38,6 +42,7 @@ MyBubble::MyBubble(const MyBubble &bubble):QGraphicsObject(),
     position=pos();
     anim=new QPropertyAnimation(this,"pos");
     anim->setEasingCurve(QEasingCurve::Linear);
+    anim->setDuration(bubble.anim->duration());
 }
 
 MyBubble::~MyBubble()
@@ -92,7 +97,6 @@ void MyBubble::advance(int phase)
         if (anim->state() ==QPropertyAnimation::Stopped)
         {
             anim->setEndValue(position);
-            anim->setDuration();
         }
     }
 }

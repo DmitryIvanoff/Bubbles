@@ -38,15 +38,17 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent),
     //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().top(),scene->sceneRect().left(),scene->sceneRect().bottom(),QPen(Qt::red));
     //    scene->addLine(scene->sceneRect().left(),scene->sceneRect().bottom(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
     //    scene->addLine(scene->sceneRect().right(),scene->sceneRect().top(),scene->sceneRect().right(),scene->sceneRect().bottom(),QPen(Qt::red));
+    int updatePeriod=1000/FPS;//result in msec
     timer=new QTimer(this);
     connect(timer,SIGNAL(timeout()),scene,SLOT(advance()));
+
     for (uint32_t i=0;i<amount;++i)
     {
-        MyBubble* item= new MyBubble(BubbleDiameter);
+        MyBubble* item= new MyBubble(BubbleDiameter,updatePeriod);
         scene->addItem(static_cast<QGraphicsItem*>(item));
         items.push_back(item);
     }
-    int updatePeriod=1000/FPS; //result in msec
+
     CThread=new CalculatorThread(&items,&items_mutex,updatePeriod/6,this);
     timer->start(updatePeriod);
     CThread->start();
@@ -94,7 +96,7 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 items_mutex.lock();
                 //qDebug()<<"mouse press";
                 //qDebug()<<"mutex is locked by "<<QThread::currentThreadId();
-                MyBubble* b=new MyBubble(BubbleDiameter,QPointF(0,0),me->buttonDownScenePos(Qt::LeftButton));
+                MyBubble* b=new MyBubble(BubbleDiameter,QPointF(0,0),me->buttonDownScenePos(Qt::LeftButton),1000/FPS);
                 scene->addItem(b);
                 BubblesAmountLabel->setText("amount: "+QString::number(++amount));
                 items.push_back(b);
